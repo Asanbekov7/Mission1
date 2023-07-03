@@ -144,7 +144,7 @@ class ViewController: UIViewController {
     }
     
     func configKeyBoard() {
-//        maxTextView.becomeFirstResponder()
+//        maxTextView.becomeFirstResponder() сделал коммит
             }
     
 }
