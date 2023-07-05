@@ -11,9 +11,8 @@ class ViewController: UIViewController {
     //MARK: Outlets
     var detailTextView = UITextView() //detailTextView
     var titleTextView = UITextView() //titleTextView
-    var changeBtn = UIButton()
-    var titleLabel = UILabel()
     var dateLabel = UILabel()
+    @IBOutlet weak var saveButton: UIBarButtonItem!
     
     let placeHolderTitleTV = "Заголовок"
     let placeHolderEditTV = "SomeText"
@@ -36,6 +35,10 @@ class ViewController: UIViewController {
         configKeyBoard()
     }
     
+    @IBAction func saveButtonAction(_ sender: UIBarButtonItem) {
+        view.endEditing(true)
+    }
+    
     func getTextViewValues() {
         if let uDStringValueMiniTV = getValueUserDefaults(key: UserDefaultsKeysValues.editTitleTV.rawValue) as? String {
             titleTextView.text = uDStringValueMiniTV
@@ -49,7 +52,6 @@ class ViewController: UIViewController {
     //MARK: Setup Text View, Button, Labels
     func addCustomSubViews() {
         
-        let colorTV = UIColor.white
         let borderColor = UIColor.white.cgColor
         
         //setup maxTextView
@@ -64,34 +66,10 @@ class ViewController: UIViewController {
         titleTextView.isScrollEnabled = false
         titleTextView.textContainer.maximumNumberOfLines = 1
         titleTextView.textContainer.lineBreakMode = .byTruncatingTail
-        titleTextView.textAlignment = .center
-        titleTextView.textContainerInset = .zero
-        titleTextView.textContainer.lineFragmentPadding = 0
         titleTextView.font = UIFont.boldSystemFont(ofSize: 22)
         titleTextView.layer.cornerRadius = 8.0
         titleTextView.layer.borderWidth = 2.0
         titleTextView.layer.borderColor = borderColor
-        
-        //setup Button
-        changeBtn.translatesAutoresizingMaskIntoConstraints = false
-        changeBtn.setTitle("Готово", for: .normal)
-        changeBtn.setTitleColor(.black, for: .normal)
-        changeBtn.backgroundColor = colorTV
-        changeBtn.layer.cornerRadius = 8.0
-        changeBtn.layer.borderWidth = 2.0
-        changeBtn.layer.borderColor = borderColor
-        changeBtn.addTarget(self, action: #selector(hideKeyboard), for: .touchUpInside)
-        
-        //setupTextLabel
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.font = UIFont.boldSystemFont(ofSize: 14)
-        titleLabel.textColor = .lightGray
-        titleLabel.text = "Введите название"
-        titleLabel.textAlignment = .left
-        titleLabel.backgroundColor = colorTV
-        titleLabel.layer.cornerRadius = 8.0
-        titleLabel.layer.borderWidth = 2.0
-        titleLabel.layer.borderColor = borderColor
         
         //setup dateLabel
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -111,20 +89,12 @@ class ViewController: UIViewController {
         //addSubview
         self.view.addSubview(detailTextView)
         self.view.addSubview(titleTextView)
-        self.view.addSubview(changeBtn)
-        self.view.addSubview(titleLabel)
         self.view.addSubview(dateLabel)
         self.detailTextView.delegate = self
         self.titleTextView.delegate = self
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
-        self.view.addGestureRecognizer(tapGesture)
         
     }
-    //Action by Keyboard
-    @objc func hideKeyboard() {
-        view.endEditing(true)
-    }
-    
+  
     func configKeyBoard() {
         detailTextView.becomeFirstResponder()
     }
@@ -133,20 +103,14 @@ class ViewController: UIViewController {
     func createdAllViewConstraint() {
         let safeArea = view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 20),
-            titleLabel.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -120),
-            titleLabel.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 0),
-            titleLabel.bottomAnchor.constraint(equalTo: self.dateLabel.topAnchor, constant: -5),
-        ])
-        NSLayoutConstraint.activate([
             dateLabel.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 20),
             dateLabel.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -20),
             dateLabel.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 30),
             dateLabel.bottomAnchor.constraint(equalTo: self.titleTextView.topAnchor, constant: -5),
         ])
         NSLayoutConstraint.activate([
-            titleTextView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 20),
-            titleTextView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -20),
+            titleTextView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 17),
+            titleTextView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -17),
             titleTextView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 70),
             titleTextView.bottomAnchor.constraint(equalTo: self.detailTextView.topAnchor, constant: -5),
         ])
@@ -155,12 +119,6 @@ class ViewController: UIViewController {
             detailTextView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -17),
             detailTextView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 110),
             detailTextView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -20),
-        ])
-        NSLayoutConstraint.activate([
-            changeBtn.leadingAnchor.constraint(equalTo: self.titleLabel.trailingAnchor, constant: 5),
-            changeBtn.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -20),
-            changeBtn.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 0),
-            changeBtn.bottomAnchor.constraint(equalTo: self.dateLabel.topAnchor, constant: -5)
         ])
     }
     
@@ -223,7 +181,7 @@ extension ViewController: UITextViewDelegate {
     
     func textViewDidEndEditing(_ textView: UITextView) {
         if textView == titleTextView {
-            if textView.text == "" || textView.text == placeHolderTitleTV {
+            if textView.text == "" {
                 textView.text = placeHolderTitleTV
                 textView.textColor = colorPlaceHolders
             } else {
@@ -232,7 +190,7 @@ extension ViewController: UITextViewDelegate {
         }
         
         if textView == detailTextView {
-            if textView.text == "" || textView.text == placeHolderEditTV {
+            if textView.text == "" {
                 textView.text = placeHolderEditTV
                 textView.textColor = colorPlaceHolders
             } else {
@@ -243,9 +201,11 @@ extension ViewController: UITextViewDelegate {
     }
     
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        if text == "\n" {
-            textView.resignFirstResponder()
-            return false
+        if textView == titleTextView {
+            if text == "\n" {
+                textView.resignFirstResponder()
+                return false
+            }
         }
         return true
     }
