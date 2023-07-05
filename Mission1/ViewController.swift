@@ -9,49 +9,68 @@ import UIKit
 
 class ViewController: UIViewController {
     //MARK: Outlets
-    var maxTextView = UITextView()
-    var miniTextView = UITextView()
+    var detailTextView = UITextView() //detailTextView
+    var titleTextView = UITextView() //titleTextView
     var changeBtn = UIButton()
     var titleLabel = UILabel()
     var dateLabel = UILabel()
     
+    let placeHolderTitleTV = "Заголовок"
+    let placeHolderEditTV = "SomeText"
+    var isSpaceAdded = false
+    
+    let colorPlaceHolders: UIColor = .lightGray
+    let colorTextSelected: UIColor = .black
+    
+    //MARK: lifecycle methods
     override func viewDidLoad() {
         super.viewDidLoad()
         addCustomSubViews()
-        createdTextViewConstraint()
+        createdAllViewConstraint()
         configKeyBoard()
+        getTextViewValues()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        self.maxTextView.becomeFirstResponder()
+        configKeyBoard()
     }
     
-//MARK: Setup Text View, Button, Labels
+    func getTextViewValues() {
+        if let uDStringValueMiniTV = getValueUserDefaults(key: UserDefaultsKeysValues.editTitleTV.rawValue) as? String {
+            titleTextView.text = uDStringValueMiniTV
+        }
+        
+        if let uDStringValueMaxTV = getValueUserDefaults(key: UserDefaultsKeysValues.editDetailTV.rawValue) as? String {
+            detailTextView.text = uDStringValueMaxTV
+        }
+    }
+    
+    //MARK: Setup Text View, Button, Labels
     func addCustomSubViews() {
         
         let colorTV = UIColor.white
         let borderColor = UIColor.white.cgColor
-
+        
         //setup maxTextView
-        maxTextView.translatesAutoresizingMaskIntoConstraints = false
-        maxTextView.backgroundColor = colorTV
-        maxTextView.text = "SomeText"
-        maxTextView.textColor = .lightGray
-        maxTextView.font = UIFont.systemFont(ofSize: 14)
-        maxTextView.layer.cornerRadius = 8.0
-        maxTextView.layer.borderWidth = 2.0
-        maxTextView.layer.borderColor = borderColor
+        detailTextView.translatesAutoresizingMaskIntoConstraints = false
+        detailTextView.font = UIFont.systemFont(ofSize: 14)
+        detailTextView.layer.cornerRadius = 8.0
+        detailTextView.layer.borderWidth = 2.0
+        detailTextView.layer.borderColor = borderColor
         
         //setup MiniTextView
-        miniTextView.translatesAutoresizingMaskIntoConstraints = false
-        miniTextView.backgroundColor = colorTV
-        miniTextView.text = "Заголовок"
-        miniTextView.font = UIFont.boldSystemFont(ofSize: 14)
-        miniTextView.textAlignment = .center
-        miniTextView.layer.cornerRadius = 8.0
-        miniTextView.layer.borderWidth = 2.0
-        miniTextView.layer.borderColor = borderColor
+        titleTextView.translatesAutoresizingMaskIntoConstraints = false
+        titleTextView.isScrollEnabled = false
+        titleTextView.textContainer.maximumNumberOfLines = 1
+        titleTextView.textContainer.lineBreakMode = .byTruncatingTail
+        titleTextView.textAlignment = .center
+        titleTextView.textContainerInset = .zero
+        titleTextView.textContainer.lineFragmentPadding = 0
+        titleTextView.font = UIFont.boldSystemFont(ofSize: 22)
+        titleTextView.layer.cornerRadius = 8.0
+        titleTextView.layer.borderWidth = 2.0
+        titleTextView.layer.borderColor = borderColor
         
         //setup Button
         changeBtn.translatesAutoresizingMaskIntoConstraints = false
@@ -65,7 +84,7 @@ class ViewController: UIViewController {
         
         //setupTextLabel
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.font = UIFont.boldSystemFont(ofSize: 22)
+        titleLabel.font = UIFont.boldSystemFont(ofSize: 14)
         titleLabel.textColor = .lightGray
         titleLabel.text = "Введите название"
         titleLabel.textAlignment = .left
@@ -90,71 +109,148 @@ class ViewController: UIViewController {
         dateLabel.layer.borderColor = borderColor
         
         //addSubview
-        self.view.addSubview(maxTextView)
-        self.view.addSubview(miniTextView)
+        self.view.addSubview(detailTextView)
+        self.view.addSubview(titleTextView)
         self.view.addSubview(changeBtn)
         self.view.addSubview(titleLabel)
         self.view.addSubview(dateLabel)
-        self.maxTextView.delegate = self
+        self.detailTextView.delegate = self
+        self.titleTextView.delegate = self
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
         self.view.addGestureRecognizer(tapGesture)
-
+        
     }
-    
+    //Action by Keyboard
     @objc func hideKeyboard() {
-        maxTextView.resignFirstResponder()
-        miniTextView.resignFirstResponder()
+        view.endEditing(true)
     }
     
+    func configKeyBoard() {
+        detailTextView.becomeFirstResponder()
+    }
     
-    
-    func createdTextViewConstraint() {
+    //MARK: NSLayoutConstraints
+    func createdAllViewConstraint() {
+        let safeArea = view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
-            miniTextView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
-            miniTextView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -120),
-            miniTextView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 0),
-            miniTextView.bottomAnchor.constraint(equalTo: self.dateLabel.topAnchor, constant: -5),
-            miniTextView.centerYAnchor.constraint(equalTo: self.view.centerYAnchor)
+            titleLabel.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -120),
+            titleLabel.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 0),
+            titleLabel.bottomAnchor.constraint(equalTo: self.dateLabel.topAnchor, constant: -5),
         ])
         NSLayoutConstraint.activate([
-            dateLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 20),
-            dateLabel.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -20),
-            dateLabel.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 30),
-            dateLabel.bottomAnchor.constraint(equalTo: self.titleLabel.topAnchor, constant: -5),
+            dateLabel.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 20),
+            dateLabel.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -20),
+            dateLabel.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 30),
+            dateLabel.bottomAnchor.constraint(equalTo: self.titleTextView.topAnchor, constant: -5),
         ])
         NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 20),
-            titleLabel.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -20),
-            titleLabel.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 70),
-            titleLabel.bottomAnchor.constraint(equalTo: self.maxTextView.topAnchor, constant: -5),
+            titleTextView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 20),
+            titleTextView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -20),
+            titleTextView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 70),
+            titleTextView.bottomAnchor.constraint(equalTo: self.detailTextView.topAnchor, constant: -5),
         ])
         NSLayoutConstraint.activate([
-            maxTextView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 17),
-            maxTextView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -17),
-            maxTextView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 110),
-            maxTextView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -20),
-            maxTextView.centerYAnchor.constraint(equalTo: self.view.centerYAnchor)
+            detailTextView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 17),
+            detailTextView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -17),
+            detailTextView.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 110),
+            detailTextView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -20),
         ])
         NSLayoutConstraint.activate([
-            changeBtn.leadingAnchor.constraint(equalTo: self.miniTextView.trailingAnchor, constant: 5),
-            changeBtn.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -20),
-            changeBtn.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 0),
+            changeBtn.leadingAnchor.constraint(equalTo: self.titleLabel.trailingAnchor, constant: 5),
+            changeBtn.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -20),
+            changeBtn.topAnchor.constraint(equalTo: safeArea.topAnchor, constant: 0),
             changeBtn.bottomAnchor.constraint(equalTo: self.dateLabel.topAnchor, constant: -5)
         ])
     }
     
-    func configKeyBoard() {
-//        maxTextView.becomeFirstResponder() сделал коммит
-            }
+    //MARK: User Default
+    func setUserDefault(value: Any, key: String) {
+        UserDefaults.standard.set(value, forKey: key)
+    }
+    
+    func getValueUserDefaults(key: String) -> Any? {
+        return UserDefaults.standard.value(forKey: key)
+    }
     
 }
+//MARK: Extension textView delegate
 
 extension ViewController: UITextViewDelegate {
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView == titleTextView {
+            if textView.text == placeHolderTitleTV {
+                textView.text = ""
+                textView.textColor = colorTextSelected
+            }
+        } else if !isSpaceAdded {
+            textView.text = textView.text + " "
+            isSpaceAdded = true
+        }
+        
+        if textView == detailTextView {
+            if textView.text == placeHolderEditTV {
+                textView.text = ""
+                textView.textColor = colorTextSelected
+            } else if !isSpaceAdded {
+                textView.text = textView.text + " "
+                isSpaceAdded = true
+            }
+        }
+    }
+    
+    func textViewDidChange(_ textView: UITextView) {
+        if textView == titleTextView {
+            if textView.text == "" {
+                textView.text = ""
+                textView.textColor = colorTextSelected
+            } else if textView.text == placeHolderTitleTV {
+                textView.text = ""
+                textView.textColor = colorTextSelected
+            }
+        }
+        
+        if textView == detailTextView {
+            if textView.text == "" {
+                textView.text = ""
+                textView.textColor = colorTextSelected
+            } else if textView.text == placeHolderEditTV {
+                textView.text = ""
+                textView.textColor = colorTextSelected
+            }
+        }
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView == titleTextView {
+            if textView.text == "" || textView.text == placeHolderTitleTV {
+                textView.text = placeHolderTitleTV
+                textView.textColor = colorPlaceHolders
+            } else {
+                setUserDefault(value: textView.text as String, key: UserDefaultsKeysValues.editTitleTV.rawValue)
+            }
+        }
+        
+        if textView == detailTextView {
+            if textView.text == "" || textView.text == placeHolderEditTV {
+                textView.text = placeHolderEditTV
+                textView.textColor = colorPlaceHolders
+            } else {
+                let trimmedText = textView.text.trimmingCharacters(in: .whitespacesAndNewlines)
+                setUserDefault(value: trimmedText as String, key: UserDefaultsKeysValues.editDetailTV.rawValue)
+            }
+        }
+    }
+    
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        if textView.text == "SomeText" {
-            textView.text = ""
-            textView.textColor = .black
+        if text == "\n" {
+            textView.resignFirstResponder()
+            return false
         }
         return true
     }
+}
+enum UserDefaultsKeysValues: String {
+    case editDetailTV
+    case editTitleTV
 }
