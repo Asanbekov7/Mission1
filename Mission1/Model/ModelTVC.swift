@@ -12,6 +12,7 @@ struct ModelCellTVC: Codable {
     let editLabel: String
     let date: Date
     let key: String
+    let personImage: Data?
     
     static func makeCells() -> [ModelCellTVC] {
         

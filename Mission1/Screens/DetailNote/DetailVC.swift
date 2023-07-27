@@ -111,15 +111,13 @@ class DetailVC: UIViewController {
         self.detailTextView.delegate = self
         self.titleTextView.delegate = self
         
-        //constraints
-        
-        
     }
     
     @objc func customButtonTapped(_ tapped: UIButton) {
         let title = titleTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         let detail = detailTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         let date = datePicker.date
+        let imageData = UIImage(named: "avatar")?.pngData()
         
         if title.isEmpty || title == placeHolderTitleTV || detail.isEmpty || detail == placeHolderDetailTV {
             let alert = UIAlertController(title: "Данные пустые", message: "Перед сохранением отредактируйте поля Заголовок и SomeText.", preferredStyle: .alert)
@@ -127,7 +125,7 @@ class DetailVC: UIViewController {
             present(alert, animated: true, completion: nil)
         } else {
             guard let noteTableVC = navigationController?.viewControllers.first as? ListNotesVC else { return }
-            let newNote = ModelCellTVC(titleLabel: title, editLabel: detail, date: date, key: note == nil ? UUID().uuidString : noteTableVC.array[selectedIndex!.row].key)
+            let newNote = ModelCellTVC(titleLabel: title, editLabel: detail, date: date, key: note == nil ? UUID().uuidString : noteTableVC.array[selectedIndex!.row].key, personImage: imageData)
 
             if isEdit, let selectedIndex = selectedIndex {
                 if noteTableVC.array.indices.contains(selectedIndex.row) {

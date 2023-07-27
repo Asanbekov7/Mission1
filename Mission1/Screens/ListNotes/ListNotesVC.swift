@@ -167,24 +167,19 @@ extension ListNotesVC: UITableViewDataSource {
         
         let model = array[indexPath.row]
         cell.configure(cell, model: model)
-        
-        
 //        cell.accessoryType = selectedIndex.contains(indexPath.row) ? .checkmark : .none
         return cell
     }
-    
-    
-    
 }
 
 //MARK: Extension Delegate
 
 extension ListNotesVC: UITableViewDelegate {
+    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         100
     }
-   
-    
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableView.isEditing { //тут проблема
             // Если таблица находится в режиме редактирования (выбора ячеек), обновляем выделение ячейки.
@@ -197,7 +192,7 @@ extension ListNotesVC: UITableViewDelegate {
                 tableView.reloadRows(at: [indexPath], with: .none)
             }
         }  else  {
-                // Если таблица не находится в режиме редактирования, открываем экран редактирования для выбранной ячейки.
+            // Если таблица не находится в режиме редактирования, открываем экран редактирования для выбранной ячейки.
             let selectedNote = array[indexPath.row]
             let detailVC = DetailVC()
             detailVC.setValuesToLabels(selectedNote)

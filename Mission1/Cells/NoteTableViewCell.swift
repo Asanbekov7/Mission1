@@ -60,11 +60,11 @@ class NoteTableViewCell: UITableViewCell {
         cell.layer.masksToBounds = true
         cell.backgroundColor = UIHelper.backgroundColor
         cell.contentView.layoutMargins = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
-        
+        guard let personImage = model.personImage else { return }
+        image.image = UIImage(data: personImage)
     }
     //MARK: PrivateProperties
     private func setupCell() {
-        image.image = UIImage(named: "avatar")
         viewContent.addSubview(titleLabel)
         viewContent.addSubview(dateLabel)
         viewContent.addSubview(editLabel)
