@@ -95,7 +95,7 @@ class ListNotesVC: UIViewController {
         addButtonTapped.removeTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
         addButtonTapped.addTarget(self, action: #selector(openVCButtonTapped), for: .touchUpInside)
     }
-    var isSelectedKnopka = false
+    
     @objc func deleteButtonTapped() {
         if !selectedIndex.isEmpty {
               // Создаем массив IndexPath для удаления ячеек
@@ -110,16 +110,19 @@ class ListNotesVC: UIViewController {
               array = array.enumerated().filter { !selectedIndex.contains($0.offset) }.map { $0.element }
               // Очищаем selectedIndex
               selectedIndex.removeAll()
-              // Выходим из режима редактирования
-              tableView.setEditing(false, animated: true)
               // Обновляем таблицу с анимацией удаления
               tableView.deleteRows(at: indexPathsToDelete, with: .automatic)
               // Возвращаем кнопке "Выбрать" исходное значение
             
-            configButton?.title = UIHelper.selectButton
+            isSelectionMode = tableView.isEditing
+            configButton?.title = !isSelectionMode ? UIHelper.selectButton : UIHelper.readyButton
+            
+            // Если все ячейки были удалены, скрываем режим редактирования
+            if array.isEmpty {
+                tableView.setEditing(false, animated: true)
+            }
             
         }
-           
     }
     
     //MARK: Configure TableView
@@ -144,8 +147,8 @@ class ListNotesVC: UIViewController {
            
             addButtonTapped.widthAnchor.constraint(equalToConstant: 50),
             addButtonTapped.heightAnchor.constraint(equalToConstant: 50),
-            addButtonTapped.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 320),
-            addButtonTapped.topAnchor.constraint(equalTo: view.topAnchor, constant: 734)
+            addButtonTapped.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            addButtonTapped.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -70)
         ])
     }
 }
@@ -166,7 +169,7 @@ extension ListNotesVC: UITableViewDataSource {
         cell.configure(cell, model: model)
         
         
-        cell.accessoryType = selectedIndex.contains(indexPath.row) ? .checkmark : .none
+//        cell.accessoryType = selectedIndex.contains(indexPath.row) ? .checkmark : .none
         return cell
     }
     
@@ -212,6 +215,9 @@ extension ListNotesVC: UITableViewDelegate {
             }
         }
         return .none // Запрещаем удаление для остальных ячеек
+    }
+    func tableView(_ tableView: UITableView, didEndEditingRowAt indexPath: IndexPath?) {
+        addBtn()
     }
  
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
