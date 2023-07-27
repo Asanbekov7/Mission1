@@ -9,24 +9,26 @@
 /* Begin PBXBuildFile section */
 		F31BD1342A4EBD98007A8FBD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31BD1332A4EBD98007A8FBD /* AppDelegate.swift */; };
 		F31BD1362A4EBD98007A8FBD /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31BD1352A4EBD98007A8FBD /* SceneDelegate.swift */; };
-		F31BD1382A4EBD98007A8FBD /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31BD1372A4EBD98007A8FBD /* ViewController.swift */; };
+		F31BD1382A4EBD98007A8FBD /* DetailVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31BD1372A4EBD98007A8FBD /* DetailVC.swift */; };
 		F31BD13D2A4EBD9A007A8FBD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F31BD13C2A4EBD9A007A8FBD /* Assets.xcassets */; };
 		F31BD1402A4EBD9A007A8FBD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F31BD13E2A4EBD9A007A8FBD /* LaunchScreen.storyboard */; };
-		F3F027122A55606A00942E54 /* NoteTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F027112A55606A00942E54 /* NoteTableViewController.swift */; };
-		F3F027152A55628800942E54 /* MyTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F027142A55628800942E54 /* MyTableViewCell.swift */; };
+		F3C787732A6FB9A700113A07 /* UIHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3C787722A6FB9A700113A07 /* UIHelper.swift */; };
+		F3F027122A55606A00942E54 /* ListNotesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F027112A55606A00942E54 /* ListNotesVC.swift */; };
+		F3F027152A55628800942E54 /* NoteTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F027142A55628800942E54 /* NoteTableViewCell.swift */; };
 		F3F027172A556B5C00942E54 /* ModelTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F027162A556B5C00942E54 /* ModelTVC.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		F31BD1302A4EBD98007A8FBD /* Mission1.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mission1.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		F31BD1332A4EBD98007A8FBD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		F31BD1352A4EBD98007A8FBD /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		F31BD1372A4EBD98007A8FBD /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		F31BD13C2A4EBD9A007A8FBD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F31BD1332A4EBD98007A8FBD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = SupportingFiles/AppDelegate.swift; sourceTree = "<group>"; };
+		F31BD1352A4EBD98007A8FBD /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SceneDelegate.swift; path = SupportingFiles/SceneDelegate.swift; sourceTree = "<group>"; };
+		F31BD1372A4EBD98007A8FBD /* DetailVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailVC.swift; sourceTree = "<group>"; };
+		F31BD13C2A4EBD9A007A8FBD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = SupportingFiles/Assets.xcassets; sourceTree = "<group>"; };
 		F31BD13F2A4EBD9A007A8FBD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		F31BD1412A4EBD9A007A8FBD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		F3F027112A55606A00942E54 /* NoteTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteTableViewController.swift; sourceTree = "<group>"; };
-		F3F027142A55628800942E54 /* MyTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyTableViewCell.swift; sourceTree = "<group>"; };
+		F31BD1412A4EBD9A007A8FBD /* info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = info.plist; path = SupportingFiles/info.plist; sourceTree = "<group>"; };
+		F3C787722A6FB9A700113A07 /* UIHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIHelper.swift; sourceTree = "<group>"; };
+		F3F027112A55606A00942E54 /* ListNotesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListNotesVC.swift; sourceTree = "<group>"; };
+		F3F027142A55628800942E54 /* NoteTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteTableViewCell.swift; sourceTree = "<group>"; };
 		F3F027162A556B5C00942E54 /* ModelTVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelTVC.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -60,25 +62,74 @@
 		F31BD1322A4EBD98007A8FBD /* Mission1 */ = {
 			isa = PBXGroup;
 			children = (
-				F31BD1332A4EBD98007A8FBD /* AppDelegate.swift */,
-				F31BD1352A4EBD98007A8FBD /* SceneDelegate.swift */,
-				F3F027132A55624D00942E54 /* TableVC */,
-				F31BD1372A4EBD98007A8FBD /* ViewController.swift */,
-				F31BD13C2A4EBD9A007A8FBD /* Assets.xcassets */,
-				F31BD13E2A4EBD9A007A8FBD /* LaunchScreen.storyboard */,
-				F31BD1412A4EBD9A007A8FBD /* Info.plist */,
+				F3C787702A6FB8E700113A07 /* SupportingFile */,
+				F3C7876E2A6FB76400113A07 /* Screens */,
+				F3C7876C2A6FAF8600113A07 /* Cells */,
+				F3C7876F2A6FB86800113A07 /* Model */,
+				F3C787712A6FB95B00113A07 /* Extensions */,
 			);
 			path = Mission1;
 			sourceTree = "<group>";
 		};
-		F3F027132A55624D00942E54 /* TableVC */ = {
+		F3C7876C2A6FAF8600113A07 /* Cells */ = {
 			isa = PBXGroup;
 			children = (
-				F3F027112A55606A00942E54 /* NoteTableViewController.swift */,
-				F3F027142A55628800942E54 /* MyTableViewCell.swift */,
+				F3F027142A55628800942E54 /* NoteTableViewCell.swift */,
+			);
+			path = Cells;
+			sourceTree = "<group>";
+		};
+		F3C7876D2A6FB60400113A07 /* DetailNote */ = {
+			isa = PBXGroup;
+			children = (
+				F31BD1372A4EBD98007A8FBD /* DetailVC.swift */,
+			);
+			path = DetailNote;
+			sourceTree = "<group>";
+		};
+		F3C7876E2A6FB76400113A07 /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				F3F027132A55624D00942E54 /* ListNotes */,
+				F3C7876D2A6FB60400113A07 /* DetailNote */,
+			);
+			path = Screens;
+			sourceTree = "<group>";
+		};
+		F3C7876F2A6FB86800113A07 /* Model */ = {
+			isa = PBXGroup;
+			children = (
 				F3F027162A556B5C00942E54 /* ModelTVC.swift */,
 			);
-			path = TableVC;
+			path = Model;
+			sourceTree = "<group>";
+		};
+		F3C787702A6FB8E700113A07 /* SupportingFile */ = {
+			isa = PBXGroup;
+			children = (
+				F31BD1332A4EBD98007A8FBD /* AppDelegate.swift */,
+				F31BD1352A4EBD98007A8FBD /* SceneDelegate.swift */,
+				F31BD13C2A4EBD9A007A8FBD /* Assets.xcassets */,
+				F31BD13E2A4EBD9A007A8FBD /* LaunchScreen.storyboard */,
+				F31BD1412A4EBD9A007A8FBD /* info.plist */,
+			);
+			name = SupportingFile;
+			sourceTree = "<group>";
+		};
+		F3C787712A6FB95B00113A07 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				F3C787722A6FB9A700113A07 /* UIHelper.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		F3F027132A55624D00942E54 /* ListNotes */ = {
+			isa = PBXGroup;
+			children = (
+				F3F027112A55606A00942E54 /* ListNotesVC.swift */,
+			);
+			path = ListNotes;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -151,11 +202,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F31BD1382A4EBD98007A8FBD /* ViewController.swift in Sources */,
-				F3F027122A55606A00942E54 /* NoteTableViewController.swift in Sources */,
+				F3C787732A6FB9A700113A07 /* UIHelper.swift in Sources */,
+				F31BD1382A4EBD98007A8FBD /* DetailVC.swift in Sources */,
+				F3F027122A55606A00942E54 /* ListNotesVC.swift in Sources */,
 				F31BD1342A4EBD98007A8FBD /* AppDelegate.swift in Sources */,
 				F3F027172A556B5C00942E54 /* ModelTVC.swift in Sources */,
-				F3F027152A55628800942E54 /* MyTableViewCell.swift in Sources */,
+				F3F027152A55628800942E54 /* NoteTableViewCell.swift in Sources */,
 				F31BD1362A4EBD98007A8FBD /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -169,6 +221,7 @@
 				F31BD13F2A4EBD9A007A8FBD /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			path = SupportingFiles;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -297,7 +350,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 73DKRTF4X8;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Mission1/Info.plist;
+				INFOPLIST_FILE = Mission1/SupportingFiles/info.plist/;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -324,7 +377,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 73DKRTF4X8;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Mission1/Info.plist;
+				INFOPLIST_FILE = Mission1/SupportingFiles/info.plist/;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";

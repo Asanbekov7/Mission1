@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class DetailVC: UIViewController {
     //MARK: Outlets
     var detailTextView = UITextView() //detailTextView
     var titleTextView = UITextView() //titleTextView
@@ -16,6 +16,9 @@ class ViewController: UIViewController {
     let dateFormatter = DateFormatter()
     var saveButton = UIButton()
     var note: ModelCellTVC?
+    var selectedIndex: IndexPath?
+    var isEdit: Bool = false
+    
     
     let placeHolderTitleTV = "Заголовок"
     let placeHolderDetailTV = "SomeText"
@@ -29,18 +32,22 @@ class ViewController: UIViewController {
         addCustomSubViews()
         createdAllViewConstraint()
         configKeyBoard()
-         
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        if titleTextView.text.isEmpty {
+        if titleTextView.text.isEmpty || titleTextView.text == placeHolderTitleTV {
             titleTextView.text = placeHolderTitleTV
+            titleTextView.textColor = colorPlaceHolders
         }
-        if detailTextView.text.isEmpty {
+        
+        if detailTextView.text.isEmpty || detailTextView.text == placeHolderDetailTV {
             detailTextView.text = placeHolderDetailTV
+            detailTextView.textColor = colorPlaceHolders
         }
+        isSpaceAdded = !detailTextView.text.isEmpty
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -48,21 +55,13 @@ class ViewController: UIViewController {
         configKeyBoard()
     }
     
-    
-    func setValuesToLabels(_ model: ModelCellTVC) {
-        titleTextView.text = model.titleLabel
-        detailTextView.text = model.editLabel
-      
-        let formattedDate = dateFormatter.string(from: model.datePicker)
-        dateLabel.text = "Дата: " + formattedDate
-    }
+
     
     //MARK: Setup Text View, Button, Labels
     private func addCustomSubViews() {
         let borderColor = UIColor.white.cgColor
         //setup datePicker
         datePicker = UIDatePicker()
-        datePicker.translatesAutoresizingMaskIntoConstraints = false
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .wheels
         datePicker.timeZone = NSTimeZone.local
@@ -77,7 +76,6 @@ class ViewController: UIViewController {
         navigationItem.rightBarButtonItem = customButton
         
         //setup maxTextView
-        detailTextView.translatesAutoresizingMaskIntoConstraints = false
         detailTextView.font = UIFont.systemFont(ofSize: 14)
         detailTextView.layer.cornerRadius = 8.0
         detailTextView.layer.borderWidth = 2.0
@@ -85,7 +83,6 @@ class ViewController: UIViewController {
         detailTextView.textContainerInset = UIEdgeInsets(top: 0, left: 1, bottom: 0, right: 0)
         
         //setup MiniTextView
-        titleTextView.translatesAutoresizingMaskIntoConstraints = false
         titleTextView.isScrollEnabled = false
         titleTextView.textContainer.maximumNumberOfLines = 1
         titleTextView.textContainer.lineBreakMode = .byTruncatingTail
@@ -94,10 +91,9 @@ class ViewController: UIViewController {
         titleTextView.layer.borderWidth = 2.0
         titleTextView.layer.borderColor = borderColor
         titleTextView.textContainerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-
+        
         
         //setup dateLabel
-        dateLabel.translatesAutoresizingMaskIntoConstraints = false
         dateFormatter.locale = Locale(identifier: "ru_RU")
         dateFormatter.dateFormat = "dd MMMM yyyy"
         let currentDate = Date()
@@ -110,10 +106,7 @@ class ViewController: UIViewController {
         
         self.view.backgroundColor = .white
         //addSubview
-        self.view.addSubview(detailTextView)
-        self.view.addSubview(titleTextView)
-        self.view.addSubview(dateLabel)
-        self.view.addSubview(datePicker)
+        
         self.datePicker.isHidden = true
         self.detailTextView.delegate = self
         self.titleTextView.delegate = self
@@ -124,27 +117,50 @@ class ViewController: UIViewController {
     }
     
     @objc func customButtonTapped(_ tapped: UIButton) {
-        let title = titleTextView.text ?? ""
-        let detail = detailTextView.text ?? ""
+        let title = titleTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let detail = detailTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
         let date = datePicker.date
         
-        if let noteTableVC = navigationController?.viewControllers.first as? NoteTableViewController {
-            let newNote = ModelCellTVC(titleLabel: title, editLabel: detail, datePicker: date)
-            let encoder = JSONEncoder()
-            let data = try! encoder.encode(newNote)
-            setUserDefault(value: data, key: UUID().uuidString)
-            noteTableVC.array.append(newNote)
-            noteTableVC.tableView.reloadData()
-        }
-        
-                hiddenDatePicker(true)
-        navigationController?.popToRootViewController(animated: true)
-    }
+        if title.isEmpty || title == placeHolderTitleTV || detail.isEmpty || detail == placeHolderDetailTV {
+            let alert = UIAlertController(title: "Данные пустые", message: "Перед сохранением отредактируйте поля Заголовок и SomeText.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            present(alert, animated: true, completion: nil)
+        } else {
+            guard let noteTableVC = navigationController?.viewControllers.first as? ListNotesVC else { return }
+            let newNote = ModelCellTVC(titleLabel: title, editLabel: detail, date: date, key: note == nil ? UUID().uuidString : noteTableVC.array[selectedIndex!.row].key)
 
+            if isEdit, let selectedIndex = selectedIndex {
+                if noteTableVC.array.indices.contains(selectedIndex.row) {
+                    noteTableVC.array[selectedIndex.row] = newNote
+                }
+            } else {
+                noteTableVC.array.append(newNote)
+            }
+            
+            let encoder = JSONEncoder()
+            if let data = try? encoder.encode(newNote) {
+                setUserDefault(value: data, key: newNote.key)
+            }
+            
+            noteTableVC.tableView.reloadData()
+            hiddenDatePicker(true)
+            navigationController?.popToRootViewController(animated: true)
+        }
+    }
+    //MARK: для передачи данных на ListNoteVC
+    func setValuesToLabels(_ model: ModelCellTVC) {
+        note = model
+        titleTextView.text = model.titleLabel
+        detailTextView.text = model.editLabel
+        
+        let formattedDate = dateFormatter.string(from: model.date)
+        dateLabel.text = "Дата: " + formattedDate
+    }
+    //MARK: Buttons для uielementov
     @objc func datePickerValueChange(_ sender: UIDatePicker) {
         let selectedDate = sender.date
-           let formattedDate = dateFormatter.string(from: selectedDate)
-           dateLabel.text = "Дата: " + formattedDate
+        let formattedDate = dateFormatter.string(from: selectedDate)
+        dateLabel.text = "Дата: " + formattedDate
         
     }
     
@@ -174,6 +190,10 @@ class ViewController: UIViewController {
     //MARK: NSLayoutConstraints
     func createdAllViewConstraint() {
         let safeArea = view.safeAreaLayoutGuide
+        [dateLabel, titleTextView, detailTextView, datePicker].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview($0)
+        }
         NSLayoutConstraint.activate([
             //MARK: Констрейнты для лейбла даты
             dateLabel.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 20),
@@ -207,7 +227,7 @@ class ViewController: UIViewController {
 }
 //MARK: Extension textView delegate
 
-extension ViewController: UITextViewDelegate {
+extension DetailVC: UITextViewDelegate {
     func textViewDidBeginEditing(_ textView: UITextView) {
         if textView == titleTextView {
             if textView.text == placeHolderTitleTV {
@@ -250,6 +270,10 @@ extension ViewController: UITextViewDelegate {
                 textView.textColor = colorTextSelected
             }
         }
+        
+        if let firstCharacter = textView.text.first {
+            textView.text = String(firstCharacter).uppercased() + textView.text.dropFirst()
+        }
     }
     
     func textViewDidEndEditing(_ textView: UITextView) {
@@ -278,3 +302,4 @@ extension ViewController: UITextViewDelegate {
         return true
     }
 }
+

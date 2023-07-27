@@ -5,17 +5,16 @@
 //  Created by Темирлан Асанбеков on 5/7/23.
 //
 
-import Foundation
 import UIKit
 
 struct ModelCellTVC: Codable {
     let titleLabel: String
     let editLabel: String
-    let datePicker: Date
-    
-    
+    let date: Date
+    let key: String
     
     static func makeCells() -> [ModelCellTVC] {
+        
         var tempArray: [ModelCellTVC] = []
         
         UserDefaults.standard.dictionaryRepresentation().forEach { (key: String, value: Any) in
@@ -28,6 +27,7 @@ struct ModelCellTVC: Codable {
                 print("Error")
             }
         }
+        
         return tempArray
     }
     
