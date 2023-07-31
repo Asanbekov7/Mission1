@@ -6,6 +6,9 @@
 //
 
 import UIKit
+protocol NoteTableViewCellDelegate: AnyObject {
+    func cellDidSelect(_ cell: NoteTableViewCell)
+}
 
 class NoteTableViewCell: UITableViewCell {
     //MARK: UIProperties
@@ -14,20 +17,20 @@ class NoteTableViewCell: UITableViewCell {
     let editLabel = UILabel()
     let dateLabel = UILabel()
     let image = UIImageView()
-    
+    let selectionImageView = UIImageView()
     
     //MARK: Init:
     override init(style: UITableViewCell.CellStyle, reuseIdentifier reusIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reusIdentifier)
         setupCell()
-
+        
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-
+    
     //MARK: PublicProperties
     func configure(_ cell: NoteTableViewCell, model: ModelCellTVC) {
         titleLabel.text = model.titleLabel
@@ -50,16 +53,18 @@ class NoteTableViewCell: UITableViewCell {
         viewContent.layer.cornerRadius = 8
         viewContent.clipsToBounds = true
         viewContent.layer.masksToBounds = true
-        
-        cell.contentView.layer.cornerRadius = 8
-        cell.contentView.clipsToBounds = true
-        cell.contentView.layer.masksToBounds = true
-        
-        cell.clipsToBounds = true
+        contentView.backgroundColor = .lightGray
+        viewContent.backgroundColor = UIHelper.backgroundColor
+        contentView.layer.cornerRadius = 8
+        contentView.clipsToBounds = true
+        contentView.layer.masksToBounds = true
+        clipsToBounds = true
+        contentView.layer.cornerRadius = 8
+        contentView.layer.masksToBounds = true
+        contentView.backgroundColor = UIHelper.backgroundColor
         cell.layer.cornerRadius = 8
-        cell.layer.masksToBounds = true
-        cell.backgroundColor = UIHelper.backgroundColor
-        cell.contentView.layoutMargins = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        cell.clipsToBounds = true
+        cell.backgroundColor = .clear
         guard let personImage = model.personImage else { return }
         image.image = UIImage(data: personImage)
     }
@@ -73,8 +78,8 @@ class NoteTableViewCell: UITableViewCell {
         contentView.addSubview(viewContent)
 
         NSLayoutConstraint.activate([
-            viewContent.topAnchor.constraint(equalTo: contentView.topAnchor),
-            viewContent.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            viewContent.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
+            viewContent.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5),
             viewContent.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             viewContent.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
         ])

@@ -20,7 +20,7 @@ class DetailVC: UIViewController {
     var isEdit: Bool = false
     
     
-    let placeHolderTitleTV = "Заголовок"
+    let placeHolderTitleTV = "Введите название"
     let placeHolderDetailTV = "SomeText"
     var isSpaceAdded = false
     let colorPlaceHolders: UIColor = .lightGray
@@ -32,7 +32,6 @@ class DetailVC: UIViewController {
         addCustomSubViews()
         createdAllViewConstraint()
         configKeyBoard()
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -74,7 +73,8 @@ class DetailVC: UIViewController {
         //setupButton
         let customButton = UIBarButtonItem(title: "Готово", style: .plain, target: self, action: #selector(customButtonTapped))
         navigationItem.rightBarButtonItem = customButton
-        
+       
+      
         //setup maxTextView
         detailTextView.font = UIFont.systemFont(ofSize: 14)
         detailTextView.layer.cornerRadius = 8.0
@@ -95,7 +95,7 @@ class DetailVC: UIViewController {
         
         //setup dateLabel
         dateFormatter.locale = Locale(identifier: "ru_RU")
-        dateFormatter.dateFormat = "dd MMMM yyyy"
+        dateFormatter.dateFormat = "dd MMMM yyyy HH:mm"
         let currentDate = Date()
         let formattedDate = dateFormatter.string(from: currentDate)
         dateLabel.text = "Дата: " + formattedDate
@@ -119,8 +119,8 @@ class DetailVC: UIViewController {
         let date = datePicker.date
         let imageData = UIImage(named: "avatar")?.pngData()
         
-        if title.isEmpty || title == placeHolderTitleTV || detail.isEmpty || detail == placeHolderDetailTV {
-            let alert = UIAlertController(title: "Данные пустые", message: "Перед сохранением отредактируйте поля Заголовок и SomeText.", preferredStyle: .alert)
+        if (title.isEmpty || title == placeHolderTitleTV) && (detail.isEmpty || detail == placeHolderDetailTV) {
+            let alert = UIAlertController(title: "Предупреждение", message: "Оба поля не могут быть пустыми", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
             present(alert, animated: true, completion: nil)
         } else {
@@ -142,7 +142,7 @@ class DetailVC: UIViewController {
             
             noteTableVC.tableView.reloadData()
             hiddenDatePicker(true)
-            navigationController?.popToRootViewController(animated: true)
+            navigationItem.rightBarButtonItem = nil
         }
     }
     //MARK: для передачи данных на ListNoteVC
@@ -203,12 +203,12 @@ class DetailVC: UIViewController {
             titleTextView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 17),
             titleTextView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -17),
             titleTextView.topAnchor.constraint(equalTo: dateLabel.bottomAnchor),
-            titleTextView.bottomAnchor.constraint(equalTo: self.detailTextView.topAnchor),
+            titleTextView.bottomAnchor.constraint(equalTo: self.detailTextView.topAnchor, constant: -20),
             
             //MARK: Констрейнты для детального текста
             detailTextView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor, constant: 17),
             detailTextView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor, constant: -17),
-            detailTextView.topAnchor.constraint(equalTo: titleTextView.bottomAnchor),
+            detailTextView.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 16),
             detailTextView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor, constant: -20),
             
             //MARK: Констрейнты для ДейтПикера

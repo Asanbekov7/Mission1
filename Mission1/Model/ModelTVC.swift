@@ -28,8 +28,6 @@ struct ModelCellTVC: Codable {
                 print("Error")
             }
         }
-        
         return tempArray
     }
-    
 }

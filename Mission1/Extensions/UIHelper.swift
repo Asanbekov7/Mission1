@@ -10,13 +10,12 @@ class UIHelper {
     static let editLabelColor = UIColor(hex: "#8E8E93")
     static let backgroundColor = UIColor(hex: "#F9FAFE")
     static let didUnhighlightColor = UIColor(hex: "#C7C7CC")
-    
+    static let buttonBackgroundColor = UIColor(hex: "#007AFF")
     static let selectButton = "Выбрать"
     static let readyButton = "Готово"
     static let navigationTitle = "Заметки"
     
 }
-
 
 extension UIColor {
     convenience init(hex: String) {
@@ -36,5 +35,15 @@ extension UIColor {
         }
         
         self.init(red: CGFloat(r) / 255, green: CGFloat(g) / 255, blue: CGFloat(b) / 255, alpha: 1.0)
+    }
+}
+
+extension UIViewController {
+    func alertController(title: String, messege: String, alert: UIAlertController.Style) {
+        let alert = UIAlertController(title: title, message: messege, preferredStyle: alert)
+        let alertAction = UIAlertAction(title: "Ok", style: .default)
+        
+        alert.addAction(alertAction)
+        self.present(alert, animated: true)
     }
 }

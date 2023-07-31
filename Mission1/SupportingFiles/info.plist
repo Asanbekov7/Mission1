@@ -11,6 +11,8 @@
 			<key>UIWindowSceneSessionRoleApplication</key>
 			<array>
 				<dict>
+					<key>UIUserInterfaceStyle</key>
+					<string>Automatic</string>
 					<key>CFBundleVersion</key>
 					<string>&lt;key&gt;CFBundleVersion&lt;/key&gt;
 &lt;string&gt;1.0&lt;/string&gt;</string>
