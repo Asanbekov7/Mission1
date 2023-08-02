@@ -14,14 +14,12 @@ class DetailVC: UIViewController {
     var dateLabel = UILabel()
     var datePicker: UIDatePicker!
     let dateFormatter = DateFormatter()
-    var saveButton = UIButton()
     var note: ModelCellTVC?
     var selectedIndex: IndexPath?
     var isEdit: Bool = false
     
     
-    let placeHolderTitleTV = "Введите название"
-    let placeHolderDetailTV = "SomeText"
+   
     var isSpaceAdded = false
     let colorPlaceHolders: UIColor = .lightGray
     let colorTextSelected: UIColor = .black
@@ -37,13 +35,13 @@ class DetailVC: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        if titleTextView.text.isEmpty || titleTextView.text == placeHolderTitleTV {
-            titleTextView.text = placeHolderTitleTV
+        if titleTextView.text.isEmpty || titleTextView.text == UIHelper.placeHolderTitleTV {
+            titleTextView.text = UIHelper.placeHolderTitleTV
             titleTextView.textColor = colorPlaceHolders
         }
         
-        if detailTextView.text.isEmpty || detailTextView.text == placeHolderDetailTV {
-            detailTextView.text = placeHolderDetailTV
+        if detailTextView.text.isEmpty || detailTextView.text == UIHelper.placeHolderDetailTV {
+            detailTextView.text = UIHelper.placeHolderDetailTV
             detailTextView.textColor = colorPlaceHolders
         }
         isSpaceAdded = !detailTextView.text.isEmpty
@@ -74,7 +72,6 @@ class DetailVC: UIViewController {
         let customButton = UIBarButtonItem(title: "Готово", style: .plain, target: self, action: #selector(customButtonTapped))
         navigationItem.rightBarButtonItem = customButton
        
-      
         //setup maxTextView
         detailTextView.font = UIFont.systemFont(ofSize: 14)
         detailTextView.layer.cornerRadius = 8.0
@@ -98,7 +95,7 @@ class DetailVC: UIViewController {
         dateFormatter.dateFormat = "dd MMMM yyyy HH:mm"
         let currentDate = Date()
         let formattedDate = dateFormatter.string(from: currentDate)
-        dateLabel.text = "Дата: " + formattedDate
+        dateLabel.text = formattedDate
         dateLabel.font = UIFont.systemFont(ofSize: 13)
         dateLabel.textColor = .gray
         dateLabel.layer.borderColor = borderColor
@@ -114,18 +111,24 @@ class DetailVC: UIViewController {
     }
     
     @objc func customButtonTapped(_ tapped: UIButton) {
-        let title = titleTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
-        let detail = detailTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
-        let date = datePicker.date
+        var title = titleTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        var detail = detailTextView.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let date = dateLabel.text
         let imageData = UIImage(named: "avatar")?.pngData()
         
-        if (title.isEmpty || title == placeHolderTitleTV) && (detail.isEmpty || detail == placeHolderDetailTV) {
-            let alert = UIAlertController(title: "Предупреждение", message: "Оба поля не могут быть пустыми", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-            present(alert, animated: true, completion: nil)
+        if title.isEmpty || title == UIHelper.placeHolderTitleTV {
+             title = ""
+         }
+         
+        if detail.isEmpty || detail == UIHelper.placeHolderDetailTV {
+             detail = ""
+         }
+        
+        if title.isEmpty && detail.isEmpty {
+            alertController(title: "Предупреждение", messege: "Оба поля заметки не могут быть пустым", alert: .alert)
         } else {
             guard let noteTableVC = navigationController?.viewControllers.first as? ListNotesVC else { return }
-            let newNote = ModelCellTVC(titleLabel: title, editLabel: detail, date: date, key: note == nil ? UUID().uuidString : noteTableVC.array[selectedIndex!.row].key, personImage: imageData)
+            let newNote = ModelCellTVC(titleLabel: title, editLabel: detail, date: date!, key: note == nil ? UUID().uuidString : noteTableVC.array[selectedIndex!.row].key, personImage: imageData)
 
             if isEdit, let selectedIndex = selectedIndex {
                 if noteTableVC.array.indices.contains(selectedIndex.row) {
@@ -150,15 +153,13 @@ class DetailVC: UIViewController {
         note = model
         titleTextView.text = model.titleLabel
         detailTextView.text = model.editLabel
-        
-        let formattedDate = dateFormatter.string(from: model.date)
-        dateLabel.text = "Дата: " + formattedDate
+        dateLabel.text = model.date
     }
     //MARK: Buttons для uielementov
     @objc func datePickerValueChange(_ sender: UIDatePicker) {
         let selectedDate = sender.date
         let formattedDate = dateFormatter.string(from: selectedDate)
-        dateLabel.text = "Дата: " + formattedDate
+        dateLabel.text = formattedDate
         
     }
     
@@ -228,7 +229,7 @@ class DetailVC: UIViewController {
 extension DetailVC: UITextViewDelegate {
     func textViewDidBeginEditing(_ textView: UITextView) {
         if textView == titleTextView {
-            if textView.text == placeHolderTitleTV {
+            if textView.text == UIHelper.placeHolderTitleTV {
                 textView.text = ""
                 textView.textColor = colorTextSelected
             }
@@ -238,7 +239,7 @@ extension DetailVC: UITextViewDelegate {
         }
         
         if textView == detailTextView {
-            if textView.text == placeHolderDetailTV {
+            if textView.text == UIHelper.placeHolderDetailTV {
                 textView.text = ""
                 textView.textColor = colorTextSelected
             } else if !isSpaceAdded {
@@ -253,7 +254,7 @@ extension DetailVC: UITextViewDelegate {
             if textView.text == "" {
                 textView.text = ""
                 textView.textColor = colorTextSelected
-            } else if textView.text == placeHolderTitleTV {
+            } else if textView.text == UIHelper.placeHolderTitleTV {
                 textView.text = ""
                 textView.textColor = colorTextSelected
             }
@@ -263,7 +264,7 @@ extension DetailVC: UITextViewDelegate {
             if textView.text == "" {
                 textView.text = ""
                 textView.textColor = colorTextSelected
-            } else if textView.text == placeHolderDetailTV {
+            } else if textView.text == UIHelper.placeHolderDetailTV {
                 textView.text = ""
                 textView.textColor = colorTextSelected
             }
@@ -277,14 +278,14 @@ extension DetailVC: UITextViewDelegate {
     func textViewDidEndEditing(_ textView: UITextView) {
         if textView == titleTextView {
             if textView.text == "" {
-                textView.text = placeHolderTitleTV
+                textView.text = UIHelper.placeHolderTitleTV
                 textView.textColor = colorPlaceHolders
             }
         }
         
         if textView == detailTextView {
             if textView.text == "" {
-                textView.text = placeHolderDetailTV
+                textView.text = UIHelper.placeHolderDetailTV
                 textView.textColor = colorPlaceHolders
             }
         }

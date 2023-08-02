@@ -10,7 +10,7 @@ import UIKit
 struct ModelCellTVC: Codable {
     let titleLabel: String
     let editLabel: String
-    let date: Date
+    var date: String
     let key: String
     let personImage: Data?
     
@@ -23,6 +23,7 @@ struct ModelCellTVC: Codable {
             do {
                 let decoder = JSONDecoder()
                 let model = try decoder.decode(ModelCellTVC.self, from: data)
+              
                 tempArray.append(model)
             } catch {
                 print("Error")

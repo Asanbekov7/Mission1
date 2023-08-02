@@ -37,12 +37,11 @@ class NoteTableViewCell: UITableViewCell {
         editLabel.text = model.editLabel
         editLabel.textColor = UIHelper.editLabelColor
         editLabel.font = UIFont.systemFont(ofSize: 10, weight: .medium)
-        let dateFormatter = DateFormatter()
-        dateFormatter.locale = Locale(identifier: "ru_RU")
-        dateFormatter.dateFormat = "dd MMMM yyyy"
-        let formattedDate = dateFormatter.string(from: model.date)
         
-        dateLabel.text = formattedDate
+       
+        
+        
+        dateLabel.text = model.date
         dateLabel.font = UIFont.systemFont(ofSize: 10, weight: .medium)
         
         titleLabel.textColor = UIColor.black
@@ -54,7 +53,7 @@ class NoteTableViewCell: UITableViewCell {
         viewContent.clipsToBounds = true
         viewContent.layer.masksToBounds = true
         contentView.backgroundColor = .lightGray
-        viewContent.backgroundColor = UIHelper.backgroundColor
+        viewContent.backgroundColor = .white
         contentView.layer.cornerRadius = 8
         contentView.clipsToBounds = true
         contentView.layer.masksToBounds = true

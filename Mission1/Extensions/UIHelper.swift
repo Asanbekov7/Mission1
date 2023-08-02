@@ -11,10 +11,13 @@ class UIHelper {
     static let backgroundColor = UIColor(hex: "#F9FAFE")
     static let didUnhighlightColor = UIColor(hex: "#C7C7CC")
     static let buttonBackgroundColor = UIColor(hex: "#007AFF")
+    
+    
     static let selectButton = "Выбрать"
     static let readyButton = "Готово"
     static let navigationTitle = "Заметки"
-    
+    static let placeHolderTitleTV = "Введите название"
+    static let placeHolderDetailTV = "SomeText"
 }
 
 extension UIColor {
