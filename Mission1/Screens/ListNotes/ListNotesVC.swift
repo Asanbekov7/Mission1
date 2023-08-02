@@ -126,37 +126,27 @@ class ListNotesVC: UIViewController {
             array = array.enumerated().filter { !selectedIndex.contains($0.offset) }.map { $0.element }
             // Очищаем selectedIndex
             selectedIndex.removeAll()
-            
+            tableView.setEditing(false, animated: true)
             // Обновляем таблицу с анимацией удаления
             tableView.deleteRows(at: indexPathsToDelete, with: .automatic)
+            // Возвращаем кнопке "Выбрать" исходное значение
+            
+            isSelectionMode = tableView.isEditing
+            configButton?.title = !isSelectionMode ? UIHelper.selectButton : UIHelper.readyButton
+            UIView.transition(with: addButtonTapped, duration: 0.3, options: .transitionFlipFromRight, animations: {
+                self.addBtn()
+            })
             
             if array.isEmpty {
                 tableView.setEditing(false, animated: true)
             }
-        } else {
-            if let selectedIndexPath = tableView.indexPathForSelectedRow {
-                let index = selectedIndexPath.row
-                let indexPathToDelete = IndexPath(row: index, section: 0)
-                
-                // Удаляем объект из UserDefaults
-                let keyToDelete = array[index].key
-                UserDefaults.standard.removeObject(forKey: keyToDelete)
-                UserDefaults.standard.synchronize()
-                
-                // Удаляем объект из массива array
-                array.remove(at: index)
-                
-                // Обновляем таблицу с анимацией удаления
-                tableView.deleteRows(at: [indexPathToDelete], with: .automatic)
-            }
-        }
-        
-        tableView.setEditing(false, animated: true)
-        isSelectionMode = false
-        configButton?.title = UIHelper.selectButton
-        addBtn()
-    }
+          
+            isSelectionMode = false
+            configButton?.title = UIHelper.selectButton
 
+        }
+    }
+    
     //MARK: Config button Animation
     func bounceButtonAnimation(totalJumps: Int, originalY: CGFloat) {
         guard totalJumps > 0 else { return }
@@ -263,9 +253,11 @@ extension ListNotesVC: UITableViewDelegate {
                     guard let self = self else { return }
                     self.deleteButtonTapped()
                     completionHandler(true)
+                
                 }
+            
                 deleteAction.image = UIImage(named: "delete_icon") // Устанавливаем иконку удаления
-    
+            
                 // Возвращаем конфигурацию с действием удаления
                 return UISwipeActionsConfiguration(actions: [deleteAction])
             }

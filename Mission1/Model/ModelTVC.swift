@@ -14,6 +14,7 @@ struct ModelCellTVC: Codable {
     let key: String
     let personImage: Data?
     
+    var isSelected = false
     static func makeCells() -> [ModelCellTVC] {
         
         var tempArray: [ModelCellTVC] = []
