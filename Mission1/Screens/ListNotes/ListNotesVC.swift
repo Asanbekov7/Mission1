@@ -78,6 +78,8 @@ class ListNotesVC: UIViewController {
             setupButton()
         }
     }
+
+    
     func setupButton() {
         UIView.transition(with: addButtonTapped, duration: 0.3, options: .transitionFlipFromRight, animations: {
             let buttonImage = self.isSelectionMode ? UIImage(named: "Trash") : UIImage(named: "plus")
@@ -170,6 +172,35 @@ class ListNotesVC: UIViewController {
         }
     }
     
+    func selectAction(at indexPath: IndexPath) -> UIContextualAction {
+        var cell = array[indexPath.row]
+        let action = UIContextualAction(style: .normal, title: "") {  action, view, completion in
+            // Меняем состояние выбора для текущей ячейки
+            if self.selectedIndex.contains(indexPath.row) {
+                self.selectedIndex.remove(indexPath.row)
+            } else {
+                self.selectedIndex.insert(indexPath.row)
+            }
+            completion(true) // Завершаем действие
+        }
+        // Устанавливаем изображение в зависимости от текущего состояния выбора
+        let isSelected = self.selectedIndex.contains(indexPath.row)
+        let imageName = isSelected ? "checkmark.seal" : "circle"
+        cell.isSelected = !cell.isSelected
+        
+        action.backgroundColor = cell.isSelected ? .systemGray : .systemPurple
+        array[indexPath.row] = cell
+        action.image = UIImage(systemName: imageName)
+        
+        return action
+    }
+    
+    func updateAccessoryView(for cell: UITableViewCell?, isSelected: Bool) {
+        guard let cell = cell else { return }
+        let accessoryImageView = UIImageView(image: isSelected ? UIImage(named: "checkmark.bubble.fill") : UIImage(named: "circle"))
+         cell.accessoryView = accessoryImageView
+        
+    }
     
     //MARK: Configure TableView
     func setupTableView() {
@@ -212,8 +243,10 @@ extension ListNotesVC: UITableViewDataSource {
         }
         
         let model = array[indexPath.row]
+//        cell.delegate = self
         cell.configure(cell, model: model)
-        //        cell.accessoryType = selectedIndex.contains(indexPath.row) ? .checkmark : .none
+//        cell.isSelectionForEditing = selectedIndex.contains(indexPath)
+        
         return cell
     }
 }
@@ -227,16 +260,22 @@ extension ListNotesVC: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+      
+
         if tableView.isEditing { //тут проблема
             // Если таблица находится в режиме редактирования (выбора ячеек), обновляем выделение ячейки.
+            
             if isSelectionMode {
-                if selectedIndex.contains(indexPath.row) {
-                    selectedIndex.remove(indexPath.row)
-                } else {
-                    selectedIndex.insert(indexPath.row)
+                    if selectedIndex.contains(indexPath.row) {
+                        selectedIndex.remove(indexPath.row)
+                        updateAccessoryView(for: tableView.cellForRow(at: indexPath), isSelected: false)
+                    } else {
+                        selectedIndex.insert(indexPath.row)
+                        
+                    }
+                   
+                    tableView.reloadRows(at: [indexPath], with: .none)
                 }
-                tableView.reloadRows(at: [indexPath], with: .none)
-            }
         }  else  {
             // Если таблица не находится в режиме редактирования, открываем экран редактирования для выбранной ячейки.
             let selectedNote = array[indexPath.row]
@@ -246,6 +285,16 @@ extension ListNotesVC: UITableViewDelegate {
             detailVC.selectedIndex = indexPath
             navigationController?.pushViewController(detailVC, animated: true)
         }
+    }
+        
+//    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+//           guard let noteCell = cell as? NoteTableViewCell else { return }
+//           noteCell.isSelectionForEditing = selectedIndex.contains(indexPath.row)
+//       }
+        
+    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let selectAction = selectAction(at: indexPath)
+        return UISwipeActionsConfiguration(actions: [selectAction])
     }
         func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
                 // Создаем действие для удаления ячейки
@@ -257,20 +306,36 @@ extension ListNotesVC: UITableViewDelegate {
                 }
             
                 deleteAction.image = UIImage(named: "delete_icon") // Устанавливаем иконку удаления
-            
+                
                 // Возвращаем конфигурацию с действием удаления
                 return UISwipeActionsConfiguration(actions: [deleteAction])
             }
     
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        
         if tableView.isEditing {
             // Проверяем, является ли ячейка выбранной (выделенной) для удаления
             if selectedIndex.contains(indexPath.row) {
                 return .delete // Разрешаем удаление для выбранной ячейки
+                
             }
         }
-        return .none // Запрещаем удаление для остальных ячеек
+        return .insert // Запрещаем удаление для остальных ячеек
     }
     
 }
-
+//extension ListNotesVC: NoteTableViewCellDelegate {
+//    func cellDidSelect(_ cell: NoteTableViewCell) {
+//        if let indexPath = tableView.indexPath(for: cell) {
+//            selectedIndex.insert(indexPath.row)
+//            cell.updateSelectionUi()
+//        }
+//    }
+//
+//    func cellDidDeselect(_ cell: NoteTableViewCell) {
+//        if let indexPath = tableView.indexPath(for: cell) {
+//            selectedIndex.remove(indexPath.row)
+//            cell.updateSelectionUi()
+//        }
+//    }
+//}

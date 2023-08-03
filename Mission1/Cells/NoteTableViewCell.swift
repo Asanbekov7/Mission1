@@ -8,6 +8,7 @@
 import UIKit
 protocol NoteTableViewCellDelegate: AnyObject {
     func cellDidSelect(_ cell: NoteTableViewCell)
+       func cellDidDeselect(_ cell: NoteTableViewCell)
 }
 
 class NoteTableViewCell: UITableViewCell {
@@ -18,7 +19,32 @@ class NoteTableViewCell: UITableViewCell {
     let dateLabel = UILabel()
     let image = UIImageView()
     let selectionImageView = UIImageView()
-    
+    var delegate: NoteTableViewCellDelegate?
+//    var cellTappedCallback: (() -> Void)?
+//    var isSelectionForEditing = false {
+//        didSet {
+//            updateSelectionUi()
+//        }
+//    }
+//
+//
+//     func updateSelectionUi() {
+//        if isSelectionForEditing {
+//            selectionImageView.image = UIImage(named: "checkmark.bubble.fill")
+//        } else {
+//            selectionImageView.image = UIImage(named: "circle")
+//        }
+//    }
+//    @objc private func cellTapped() {
+//        isSelectionForEditing.toggle()
+//        updateSelectionUi()
+//        if isSelectionForEditing {
+//                delegate?.cellDidSelect(self)
+//            } else {
+//                delegate?.cellDidDeselect(self)
+//            }
+//        cellTappedCallback?()
+//    }
     //MARK: Init:
     override init(style: UITableViewCell.CellStyle, reuseIdentifier reusIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reusIdentifier)
@@ -69,6 +95,9 @@ class NoteTableViewCell: UITableViewCell {
     }
     //MARK: PrivateProperties
     private func setupCell() {
+//        contentView.isUserInteractionEnabled = true
+//        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(cellTapped))
+//        contentView.addGestureRecognizer(tapGesture)
         viewContent.addSubview(titleLabel)
         viewContent.addSubview(dateLabel)
         viewContent.addSubview(editLabel)
@@ -109,4 +138,5 @@ class NoteTableViewCell: UITableViewCell {
         ])
     }
 }
+
 
