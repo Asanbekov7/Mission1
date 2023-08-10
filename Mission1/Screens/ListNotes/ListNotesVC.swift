@@ -7,18 +7,28 @@
 
 import UIKit
 
+protocol NoteUpdateDelegate: AnyObject {
+    func saveNote(_ note: ModelCellTVC)
+    func updateNote(atIndex index: Int, withNote note: ModelCellTVC)
+}
+
 class ListNotesVC: UIViewController {
     
-    //MARK: Properties
+    // MARK: Public properties
+
     var array = [ModelCellTVC]()
+    var isSelectionMode = false
+    var isDarkModeEnabled = false
+    
+    // MARK: UI properties
+    
     let tableView: UITableView = UITableView()
     var configButton: UIBarButtonItem?
     var addButtonTapped = UIButton()
     var selectedIndex = Set<Int>()
-    var isSelectionMode = false
-    var isDarkModeEnabled = false
     
-    //MARK: LifeCycle Methods
+    //MARK: Inheritance
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationBar()
@@ -27,13 +37,11 @@ class ListNotesVC: UIViewController {
         setupBarButton()
         tableView.allowsSelectionDuringEditing = true
         addBtn()
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            // Анимация "подскока" кнопки вверх и затем вниз
             self.bounceButtonAnimation(totalJumps: 2, originalY: self.addButtonTapped.center.y)
         }
         addButtonTapped.transform = .identity
@@ -44,7 +52,14 @@ class ListNotesVC: UIViewController {
         addButtonTapped.layer.cornerRadius = addButtonTapped.frame.height / 2
     }
     
-    //MARK: Navigation
+    //MARK: Костыль пиздец
+    
+    func setDelegateToUpdate(_ vc: DetailVC) {
+        vc.noteUpdateDelegate = self
+    }
+    
+    // MARK: Public properties
+    
     func setupNavigationBar() {
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let sceneDelegate = windowScene.delegate as? SceneDelegate {
@@ -60,11 +75,36 @@ class ListNotesVC: UIViewController {
         }
     }
     
-    //MARK: Setup Buttons
-    func setupBarButton() {
+    //MARK: Private methods
+    
+  private func setupBarButton() {
         configButton = UIBarButtonItem(title: UIHelper.selectButton, style: .plain, target: self, action: #selector(moveButtonTapped))
         navigationItem.rightBarButtonItem = configButton
     }
+    
+   private func setupButton() {
+        isSelectionMode = tableView.isEditing
+        configButton?.title = !isSelectionMode ? UIHelper.selectButton : UIHelper.readyButton
+        
+        UIView.transition(with: addButtonTapped, duration: 0.3, options: .transitionFlipFromRight, animations: { [weak self] in
+            guard let weakSelf = self else { return }
+            let buttonImage = weakSelf.isSelectionMode ? UIImage(named: "Trash") : UIImage(named: "plus")
+            weakSelf.addButtonTapped.setImage(buttonImage, for: .normal)
+            weakSelf.addButtonTapped.backgroundColor = UIHelper.buttonBackgroundColor
+            weakSelf.addButtonTapped.removeTarget(weakSelf, action: weakSelf.isSelectionMode ? #selector(weakSelf.openVCButtonTapped) : #selector(weakSelf.deleteButtonTapped), for: .touchUpInside)
+            weakSelf.addButtonTapped.addTarget(weakSelf, action: weakSelf.isSelectionMode ? #selector(weakSelf.deleteButtonTapped) : #selector(weakSelf.openVCButtonTapped), for: .touchUpInside)
+        })
+    }
+    
+    private func addBtn() {
+         addButtonTapped.setImage(UIImage(named: "plus"), for: .normal)
+         addButtonTapped.backgroundColor = UIHelper.buttonBackgroundColor
+         addButtonTapped.removeTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
+         addButtonTapped.addTarget(self, action: #selector(openVCButtonTapped), for: .touchUpInside)
+         
+     }
+    
+    // MARK: UI action methods
     
     @objc func moveButtonTapped() {
         if array.isEmpty {
@@ -72,66 +112,40 @@ class ListNotesVC: UIViewController {
             configButton?.title = UIHelper.selectButton
         } else {
             tableView.setEditing(!tableView.isEditing, animated: true)
-            // Изменяем текст кнопки в зависимости от режима редактирования
-            isSelectionMode = tableView.isEditing
-            configButton?.title = !isSelectionMode ? UIHelper.selectButton : UIHelper.readyButton
             setupButton()
         }
-    }
-
-    
-    func setupButton() {
-        UIView.transition(with: addButtonTapped, duration: 0.3, options: .transitionFlipFromRight, animations: {
-            let buttonImage = self.isSelectionMode ? UIImage(named: "Trash") : UIImage(named: "plus")
-            self.addButtonTapped.setImage(buttonImage, for: .normal)
-            self.addButtonTapped.backgroundColor = UIHelper.buttonBackgroundColor
-            self.addButtonTapped.removeTarget(self, action: self.isSelectionMode ? #selector(self.openVCButtonTapped) : #selector(self.deleteButtonTapped), for: .touchUpInside)
-            self.addButtonTapped.addTarget(self, action: self.isSelectionMode ? #selector(self.deleteButtonTapped) : #selector(self.openVCButtonTapped), for: .touchUpInside)
-            
-        })
     }
     
     @objc func openVCButtonTapped() {
         if !isSelectionMode {
-            UIView.animate(withDuration: 0.1, animations: {
+            UIView.animate(withDuration: 0.1, animations: { 
                 self.addButtonTapped.transform = CGAffineTransform(translationX: 0, y: -90)
             }) { _ in
                 UIView.animate(withDuration: 0.12, animations: {
                     self.addButtonTapped.transform = CGAffineTransform(translationX: 0, y: 200)
                 }) { _ in
                     let destinationViewController = DetailVC()
+                    self.setDelegateToUpdate(destinationViewController)
                     self.navigationController?.pushViewController(destinationViewController, animated: true)
                 }
             }
         }
     }
     
-    func addBtn() {
-        addButtonTapped.setImage(UIImage(named: "plus"), for: .normal)
-        addButtonTapped.backgroundColor = UIHelper.buttonBackgroundColor
-        addButtonTapped.removeTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
-        addButtonTapped.addTarget(self, action: #selector(openVCButtonTapped), for: .touchUpInside)
-        
-    }
-    
     @objc func deleteButtonTapped() {
         if !selectedIndex.isEmpty {
-            // Создаем массив IndexPath для удаления ячеек
+            
             let indexPathsToDelete = selectedIndex.sorted(by: >).map { IndexPath(row: $0, section: 0) }
             
-            // Удаляем объекты из UserDefaults
             for index in selectedIndex.sorted(by: >) {
                 UserDefaults.standard.removeObject(forKey: array[index].key)
             }
+            
             UserDefaults.standard.synchronize()
-            // Удаляем объекты из массива array
             array = array.enumerated().filter { !selectedIndex.contains($0.offset) }.map { $0.element }
-            // Очищаем selectedIndex
             selectedIndex.removeAll()
             tableView.setEditing(false, animated: true)
-            // Обновляем таблицу с анимацией удаления
             tableView.deleteRows(at: indexPathsToDelete, with: .automatic)
-            // Возвращаем кнопке "Выбрать" исходное значение
             
             isSelectionMode = tableView.isEditing
             configButton?.title = !isSelectionMode ? UIHelper.selectButton : UIHelper.readyButton
@@ -142,10 +156,13 @@ class ListNotesVC: UIViewController {
             if array.isEmpty {
                 tableView.setEditing(false, animated: true)
             }
-          
+            
             isSelectionMode = false
             configButton?.title = UIHelper.selectButton
-
+            
+        } else {
+            isSelectionMode = false
+            setupButton()
         }
     }
     
@@ -153,53 +170,18 @@ class ListNotesVC: UIViewController {
     func bounceButtonAnimation(totalJumps: Int, originalY: CGFloat) {
         guard totalJumps > 0 else { return }
         
-        UIView.animate(withDuration: 0.20, animations: {
-            self.addButtonTapped.center.y -= 120
-        }) { _ in
-            UIView.animate(withDuration: 0.15, animations: {
-                self.addButtonTapped.center.y += 150
-            }) { _ in
-                // Вызываем рекурсивно анимацию для следующего прыжка
-                self.bounceButtonAnimation(totalJumps: totalJumps - 1, originalY: originalY)
-                
-                // Уменьшаем амплитуду прыжка после первого прыжка
-                if totalJumps == 1 {
-                    UIView.animate(withDuration: 0.20, animations: {
-                        self.addButtonTapped.center.y = originalY
-                    })
-                }
-            }
-        }
-    }
-    
-    func selectAction(at indexPath: IndexPath) -> UIContextualAction {
-        var cell = array[indexPath.row]
-        let action = UIContextualAction(style: .normal, title: "") {  action, view, completion in
-            // Меняем состояние выбора для текущей ячейки
-            if self.selectedIndex.contains(indexPath.row) {
-                self.selectedIndex.remove(indexPath.row)
-            } else {
-                self.selectedIndex.insert(indexPath.row)
-            }
-            completion(true) // Завершаем действие
-        }
-        // Устанавливаем изображение в зависимости от текущего состояния выбора
-        let isSelected = self.selectedIndex.contains(indexPath.row)
-        let imageName = isSelected ? "checkmark.seal" : "circle"
-        cell.isSelected = !cell.isSelected
-        
-        action.backgroundColor = cell.isSelected ? .systemGray : .systemPurple
-        array[indexPath.row] = cell
-        action.image = UIImage(systemName: imageName)
-        
-        return action
-    }
-    
-    func updateAccessoryView(for cell: UITableViewCell?, isSelected: Bool) {
-        guard let cell = cell else { return }
-        let accessoryImageView = UIImageView(image: isSelected ? UIImage(named: "checkmark.bubble.fill") : UIImage(named: "circle"))
-         cell.accessoryView = accessoryImageView
-        
+        self.addButtonTapped.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
+
+          UIView.animate(withDuration: 2.0,
+                                     delay: 0,
+                                     usingSpringWithDamping: CGFloat(0.20),
+                                     initialSpringVelocity: CGFloat(6.0),
+                                     options: UIView.AnimationOptions.allowUserInteraction,
+                                     animations: {
+              self.addButtonTapped.transform = CGAffineTransform.identity
+              },
+                                     completion: { Void in()  }
+          )
     }
     
     //MARK: Configure TableView
@@ -215,6 +197,8 @@ class ListNotesVC: UIViewController {
         tableView.delegate = self
         tableView.separatorStyle = .none
         tableView.separatorInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        tableView.allowsMultipleSelectionDuringEditing = true
+        
         
         NSLayoutConstraint.activate([
             tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 10),
@@ -230,7 +214,7 @@ class ListNotesVC: UIViewController {
     }
 }
 
-//MARK: Extension DataSource
+// MARK: - UITableViewDataSource delegate methods
 
 extension ListNotesVC: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -243,99 +227,86 @@ extension ListNotesVC: UITableViewDataSource {
         }
         
         let model = array[indexPath.row]
-//        cell.delegate = self
         cell.configure(cell, model: model)
-//        cell.isSelectionForEditing = selectedIndex.contains(indexPath)
         
         return cell
     }
 }
 
-//MARK: Extension Delegate
+// MARK: - UITableViewDelegate methods
 
 extension ListNotesVC: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         100
     }
-    
+ 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-      
-
-        if tableView.isEditing { //тут проблема
-            // Если таблица находится в режиме редактирования (выбора ячеек), обновляем выделение ячейки.
-            
-            if isSelectionMode {
-                    if selectedIndex.contains(indexPath.row) {
-                        selectedIndex.remove(indexPath.row)
-                        updateAccessoryView(for: tableView.cellForRow(at: indexPath), isSelected: false)
-                    } else {
-                        selectedIndex.insert(indexPath.row)
-                        
-                    }
-                   
-                    tableView.reloadRows(at: [indexPath], with: .none)
-                }
+       
+        if tableView.isEditing {
+            selectedIndex.insert(indexPath.row)
         }  else  {
-            // Если таблица не находится в режиме редактирования, открываем экран редактирования для выбранной ячейки.
             let selectedNote = array[indexPath.row]
             let detailVC = DetailVC()
             detailVC.setValuesToLabels(selectedNote)
             detailVC.isEdit = true
             detailVC.selectedIndex = indexPath
+        
+            setDelegateToUpdate(detailVC)
+            
             navigationController?.pushViewController(detailVC, animated: true)
         }
+        
+    }
+  
+    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        selectedIndex.remove(indexPath.row)
+        
     }
         
-//    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-//           guard let noteCell = cell as? NoteTableViewCell else { return }
-//           noteCell.isSelectionForEditing = selectedIndex.contains(indexPath.row)
-//       }
-        
-    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let selectAction = selectAction(at: indexPath)
-        return UISwipeActionsConfiguration(actions: [selectAction])
-    }
-        func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-                // Создаем действие для удаления ячейки
-            let deleteAction = UIContextualAction(style: .destructive, title: nil) { [weak self] (action, view, completionHandler) in
-                    guard let self = self else { return }
-                    self.deleteButtonTapped()
-                    completionHandler(true)
-                
-                }
-            
-                deleteAction.image = UIImage(named: "delete_icon") // Устанавливаем иконку удаления
-                
-                // Возвращаем конфигурацию с действием удаления
-                return UISwipeActionsConfiguration(actions: [deleteAction])
-            }
-    
-    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
-        
-        if tableView.isEditing {
-            // Проверяем, является ли ячейка выбранной (выделенной) для удаления
-            if selectedIndex.contains(indexPath.row) {
-                return .delete // Разрешаем удаление для выбранной ячейки
-                
-            }
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let actionDelete = UIContextualAction(style: .destructive, title: nil) { [weak self] _, _, _ in
+            guard let weakSelf = self else { return }
+            let removedNote = weakSelf.array.remove(at: indexPath.row)
+            UserDefaults.standard.removeObject(forKey: removedNote.key)
+            tableView.reloadData()
         }
-        return .insert // Запрещаем удаление для остальных ячеек
+        let imageConfig = UIImage.SymbolConfiguration( pointSize: 20.0, weight: .bold, scale: .large)
+        actionDelete.image = UIImage( systemName: "trash", withConfiguration: imageConfig)?.withTintColor( .white, renderingMode: .alwaysTemplate).addBackgroundCircle(.systemRed)
+        
+        actionDelete.backgroundColor = UIHelper.backgroundColor
+        actionDelete.title = "Удалить"
+        
+        let actions = UISwipeActionsConfiguration(actions: [actionDelete])
+        actions.performsFirstActionWithFullSwipe = false
+
+        return actions
+    }
+}
+
+//MARK: Inheritance protocol delegate
+
+extension ListNotesVC: NoteUpdateDelegate {
+    func setUserDefaults(value: Any, key: String) {
+        UserDefaults.standard.set(value, forKey: key)
     }
     
+    func saveNote(_ note: ModelCellTVC) {
+        array.append(note)
+        let encoder = JSONEncoder()
+        if let data = try? encoder.encode(note) {
+            setUserDefaults(value: data, key: note.key)
+        }
+        tableView.reloadData()
+    }
+    
+    func updateNote(atIndex index: Int, withNote note: ModelCellTVC) {
+        guard index < array.count else { return }
+        array[index] = note
+        let encoder = JSONEncoder()
+        if let data = try? encoder.encode(note) {
+            setUserDefaults(value: data, key: note.key)
+        }
+        tableView.reloadData()
+    }
 }
-//extension ListNotesVC: NoteTableViewCellDelegate {
-//    func cellDidSelect(_ cell: NoteTableViewCell) {
-//        if let indexPath = tableView.indexPath(for: cell) {
-//            selectedIndex.insert(indexPath.row)
-//            cell.updateSelectionUi()
-//        }
-//    }
-//
-//    func cellDidDeselect(_ cell: NoteTableViewCell) {
-//        if let indexPath = tableView.indexPath(for: cell) {
-//            selectedIndex.remove(indexPath.row)
-//            cell.updateSelectionUi()
-//        }
-//    }
-//}
