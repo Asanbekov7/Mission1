@@ -7,10 +7,6 @@
 
 import UIKit
 
-protocol NoteUpdateDelegate: AnyObject {
-    func saveNote(_ note: ModelCellTVC)
-    func updateNote(atIndex index: Int, withNote note: ModelCellTVC)
-}
 
 class ListNotesVC: UIViewController {
     
@@ -33,10 +29,10 @@ class ListNotesVC: UIViewController {
         super.viewDidLoad()
         setupNavigationBar()
         setupTableView()
-        array = ModelCellTVC.makeCells()
         setupBarButton()
         tableView.allowsSelectionDuringEditing = true
         addBtn()
+        setValuesToArray()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -52,10 +48,22 @@ class ListNotesVC: UIViewController {
         addButtonTapped.layer.cornerRadius = addButtonTapped.frame.height / 2
     }
     
-    //MARK: Костыль пиздец
-    
-    func setDelegateToUpdate(_ vc: DetailVC) {
-        vc.noteUpdateDelegate = self
+    func setValuesToArray() {
+        var setModelCellTVC: Set<ModelCellTVC> = []
+        
+        UserDefaults.standard.dictionaryRepresentation().forEach { (key: String, value: Any) in
+            guard let data = value as? Data else { return }
+            do {
+                let decoder = JSONDecoder()
+                let model = try decoder.decode(ModelCellTVC.self, from: data)
+                setModelCellTVC.insert(model)
+                
+            } catch {
+                print("Error")
+            }
+        }
+        
+        array = setModelCellTVC.sorted(by: { $0.date < $1.date })
     }
     
     // MARK: Public properties
@@ -125,7 +133,10 @@ class ListNotesVC: UIViewController {
                     self.addButtonTapped.transform = CGAffineTransform(translationX: 0, y: 200)
                 }) { _ in
                     let destinationViewController = DetailVC()
-                    self.setDelegateToUpdate(destinationViewController)
+                    destinationViewController.onSave = { [weak self] in
+                        self?.setValuesToArray()
+                        self?.tableView.reloadData()
+                    }
                     self.navigationController?.pushViewController(destinationViewController, animated: true)
                 }
             }
@@ -251,10 +262,13 @@ extension ListNotesVC: UITableViewDelegate {
             detailVC.setValuesToLabels(selectedNote)
             detailVC.isEdit = true
             detailVC.selectedIndex = indexPath
-        
-            setDelegateToUpdate(detailVC)
+            detailVC.onSave = { [weak self] in
+                self?.setValuesToArray()
+                self?.tableView.reloadData()
+            }
             
-            navigationController?.pushViewController(detailVC, animated: true)
+           navigationController?.pushViewController(detailVC, animated: true)
+            
         }
         
     }
@@ -284,29 +298,5 @@ extension ListNotesVC: UITableViewDelegate {
     }
 }
 
-//MARK: Inheritance protocol delegate
 
-extension ListNotesVC: NoteUpdateDelegate {
-    func setUserDefaults(value: Any, key: String) {
-        UserDefaults.standard.set(value, forKey: key)
-    }
-    
-    func saveNote(_ note: ModelCellTVC) {
-        array.append(note)
-        let encoder = JSONEncoder()
-        if let data = try? encoder.encode(note) {
-            setUserDefaults(value: data, key: note.key)
-        }
-        tableView.reloadData()
-    }
-    
-    func updateNote(atIndex index: Int, withNote note: ModelCellTVC) {
-        guard index < array.count else { return }
-        array[index] = note
-        let encoder = JSONEncoder()
-        if let data = try? encoder.encode(note) {
-            setUserDefaults(value: data, key: note.key)
-        }
-        tableView.reloadData()
-    }
-}
+

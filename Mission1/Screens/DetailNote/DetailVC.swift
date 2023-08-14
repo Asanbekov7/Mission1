@@ -8,6 +8,7 @@
 import UIKit
 
 
+
 class DetailVC: UIViewController {
     
     // MARK: Public properties
@@ -16,6 +17,7 @@ class DetailVC: UIViewController {
     var selectedIndex: IndexPath?
     var isEdit: Bool = false
     var isSpaceAdded = false
+    var onSave: (() -> Void)?
     
     // MARK: Privat UI Properties
     private var datePicker: UIDatePicker!
@@ -60,9 +62,6 @@ class DetailVC: UIViewController {
         let formattedDate = dateFormatter.string(from: currentDate)
         return dateFormatter
     }()
-    
-    //MARK: protocol Delegate
-    weak var noteUpdateDelegate: NoteUpdateDelegate?
     
     //MARK: Inheritance
     override func viewDidLoad() {
@@ -115,11 +114,14 @@ class DetailVC: UIViewController {
             guard let noteTableVC = navigationController?.viewControllers.first as? ListNotesVC else { return }
             let newNote = ModelCellTVC(titleLabel: title, editLabel: detail, date: date!, key: note == nil ? UUID().uuidString : noteTableVC.array[selectedIndex!.row].key, personImage: imageData)
             
-            if isEdit, let selectedIndex = selectedIndex {
-                noteUpdateDelegate?.updateNote(atIndex: selectedIndex.row, withNote: newNote)
-            } else {
-                noteUpdateDelegate?.saveNote(newNote)
+            saveOrUpdateNote(newNote)
+            onSave?()
+                
+            let encoder = JSONEncoder()
+            if let data = try? encoder.encode(newNote) {
+                setUserDefault(value: data, key: newNote.key)
             }
+            
             noteTableVC.tableView.reloadData()
             hiddenDatePicker(true)
             
@@ -166,6 +168,10 @@ class DetailVC: UIViewController {
             self.datePicker.isHidden = bool
         }
     }
+}
+
+func setUserDefault(value: Any, key: String) {
+    UserDefaults.standard.set(value, forKey: key)
 }
 
 // MARK: - UITextViewDelegate methods
@@ -320,5 +326,18 @@ extension DetailVC {
         static let colorTextSelected = UIColor.black
         static let colorPlaceHolders = UIColor.lightGray
         static let borderColor = UIColor.white
+    }
+}
+
+extension DetailVC {
+    func setUserDefaults(value: Any, key: String) {
+        UserDefaults.standard.set(value, forKey: key)
+    }
+    
+    func saveOrUpdateNote(_ note: ModelCellTVC) {
+        let encoder = JSONEncoder()
+        if let data = try? encoder.encode(note) {
+            setUserDefaults(value: data, key: note.key)
+        }
     }
 }
